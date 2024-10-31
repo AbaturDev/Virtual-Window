@@ -26,6 +26,7 @@
 # Visual Studio and VSC cache directory
 .vs/
 .vscode
+.vsconfig
 
 # Gradle cache directory
 .gradle/
@@ -72,3 +73,21 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+/app.config
+/License-LGPL.txt
+/packages.config
+
+#Packages
+Microsoft.Bcl.AsyncInterfaces.8.0.0
+System.Buffers.4.5.1
+System.Drawing.Primitives.4.3.0
+System.Memory.4.5.5
+System.Numerics.Vectors.4.5.0
+System.Runtime.4.3.1
+System.Runtime.CompilerServices.Unsafe.6.0.0
+System.Runtime.InteropServices.RuntimeInformation.4.3.0
+System.Text.Encodings.Web.8.0.0
+System.Text.Json.8.0.5
+System.Threading.Tasks.Extensions.4.5.4
+System.ValueTuple.4.5.0

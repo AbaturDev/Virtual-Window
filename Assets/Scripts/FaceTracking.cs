@@ -1,29 +1,94 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Drawing;
+using System.IO;
 
-public class FaceTracking : MonoBehaviour
+using Emgu.CV;
+using Emgu.CV.Util;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
+using Emgu.CV.OCR;
+
+public class FaceDetector : MonoBehaviour
 {
-    private WebCamTexture webcamTexture;
+    private VideoCapture video;
 
-    // Start is called before the first frame update
-    private void InitializeCamera()
-    {
-        var devices = WebCamTexture.devices;
-        webcamTexture = new WebCamTexture(devices[0].name);
-        Renderer renderer = GetComponent<Renderer>();
-        renderer.material.mainTexture = webcamTexture;
-        webcamTexture.Play();
-    }
+    private CascadeClassifier frontalFace;
+    private CascadeClassifier eye;
 
     void Start()
     {
-        InitializeCamera();
+        video = new VideoCapture(0);
+        if (video.IsOpened)
+        {
+            video.ImageGrabbed += OnImageGrabbed;
+        }
+
+        frontalFace = new CascadeClassifier(Application.dataPath + "/XML/haarcascade_frontalface_default.xml");
+        eye = new CascadeClassifier(Application.dataPath + "/XML/haarcascade_eye.xml");
     }
 
-    // Update is called once per frame
+    // Function for grabbing images
+    void OnImageGrabbed(object sender, EventArgs args)
+    {
+        Mat source = new Mat();
+        video.Retrieve(source);
+
+        Image<Bgr, Byte> buffer_im = source.ToImage<Bgr, Byte>();
+        source = buffer_im.Mat;
+
+        CvInvoke.Flip(source, source, FlipType.Horizontal);
+
+        // FACE DETECTION
+        // Cloning the mat and converting it color to gray to use the CascadeClassifier
+        Mat imgGray = source.Clone();
+        CvInvoke.CvtColor(source, imgGray, ColorConversion.Bgr2Gray);
+
+        Rectangle[] detectFaces = frontalFace.DetectMultiScale(imgGray);
+        if (detectFaces.Length == 0)
+        {
+            return;
+        }
+
+        // Chosing the biggest face
+        Rectangle mainFace = new Rectangle();
+        foreach (var face in detectFaces)
+        {
+            if (face.Height * face.Width > mainFace.Height * mainFace.Width)
+            {
+                mainFace = face;
+            }
+        }
+        CvInvoke.Rectangle(source, mainFace, new MCvScalar(0, 255, 0));
+
+        // EYE DETECTION
+        // Selecting the area where the face is located
+        Mat faceRegion = new Mat(imgGray, mainFace);    
+        var detectedEyes = eye.DetectMultiScale(faceRegion);
+        
+        foreach(var eye_ in detectedEyes)
+        {
+            Rectangle eyePosition = new Rectangle(
+                mainFace.X + eye_.X,
+                mainFace.Y + eye_.Y,
+                eye_.Width,
+                eye_.Height);
+
+            CvInvoke.Rectangle(source, eyePosition, new MCvScalar(255, 0, 255));
+        }
+
+        CvInvoke.Imshow("Face Detection", source);
+    }
+
     void Update()
     {
-        
+        if (video.IsOpened)
+        {
+            video.Grab();
+        }
     }
 }
