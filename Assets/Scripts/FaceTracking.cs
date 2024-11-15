@@ -12,10 +12,12 @@ using Emgu.CV.Util;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using Emgu.CV.OCR;
+using Emgu.CV.Tracking;
 
 public class FaceDetector : MonoBehaviour
 {
     private VideoCapture video;
+    private Vector3 facePosition;
 
     private CascadeClassifier frontalFace;
     private CascadeClassifier eye;
@@ -30,6 +32,7 @@ public class FaceDetector : MonoBehaviour
 
         frontalFace = new CascadeClassifier(Application.dataPath + "/XML/haarcascade_frontalface_default.xml");
         eye = new CascadeClassifier(Application.dataPath + "/XML/haarcascade_eye.xml");
+
     }
 
     // Function for grabbing images
@@ -54,7 +57,7 @@ public class FaceDetector : MonoBehaviour
             return;
         }
 
-        // Chosing the biggest face
+        // Choosing the biggest face
         Rectangle mainFace = new Rectangle();
         foreach (var face in detectFaces)
         {
@@ -65,23 +68,46 @@ public class FaceDetector : MonoBehaviour
         }
         CvInvoke.Rectangle(source, mainFace, new MCvScalar(0, 255, 0));
 
-        // EYE DETECTION
-        // Selecting the area where the face is located
-        Mat faceRegion = new Mat(imgGray, mainFace);    
-        var detectedEyes = eye.DetectMultiScale(faceRegion);
-        
-        foreach(var eye_ in detectedEyes)
-        {
-            Rectangle eyePosition = new Rectangle(
-                mainFace.X + eye_.X,
-                mainFace.Y + eye_.Y,
-                eye_.Width,
-                eye_.Height);
+        //// EYE DETECTION
+        //// Selecting the area where the face is located
+        //Mat faceRegion = new Mat(imgGray, mainFace);
+        //var detectedEyes = eye.DetectMultiScale(faceRegion);
 
-            CvInvoke.Rectangle(source, eyePosition, new MCvScalar(255, 0, 255));
-        }
+        //foreach (var eye_ in detectedEyes)
+        //{
+        //    Rectangle eyePosition = new Rectangle(
+        //        mainFace.X + eye_.X,
+        //        mainFace.Y + eye_.Y,
+        //        eye_.Width,
+        //        eye_.Height);
+
+        //    CvInvoke.Rectangle(source, eyePosition, new MCvScalar(255, 0, 255));
+        //}
+
+        float faceReferenceWidth = 300f;
+        float referenceDistance = 50f;
+
+        // Obliczamy Z na podstawie proporcji
+        float currentFaceWidth = mainFace.Width;
+        float zPosition = (faceReferenceWidth / currentFaceWidth) * referenceDistance;
+
+        // Ustawiamy wspó³rzêdne œrodka twarzy z obliczonym Z
+        facePosition = new Vector3(
+            mainFace.X + mainFace.Width / 2,
+            mainFace.Y + mainFace.Height / 2,
+            zPosition
+        );
+
+
+        //Wyœwietlenie wspó³rzêdnych w konsoli
+        Debug.Log($"Œrodek twarzy: X={facePosition.x}, Y={facePosition.y}, Z={facePosition.z}");
 
         CvInvoke.Imshow("Face Detection", source);
+    }
+
+    public Vector3 GetFacePosition()
+    {
+        return facePosition;
     }
 
     void Update()
@@ -92,3 +118,4 @@ public class FaceDetector : MonoBehaviour
         }
     }
 }
+
