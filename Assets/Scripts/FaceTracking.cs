@@ -87,20 +87,18 @@ public class FaceDetector : MonoBehaviour
         float faceReferenceWidth = 300f;
         float referenceDistance = 50f;
 
-        // Obliczamy Z na podstawie proporcji
+        // Counting z position based on face proportion
         float currentFaceWidth = mainFace.Width;
         float zPosition = (faceReferenceWidth / currentFaceWidth) * referenceDistance;
 
-        // Ustawiamy wspó³rzêdne œrodka twarzy z obliczonym Z
+        // Setting up the postion as the middle of the face
         facePosition = new Vector3(
             mainFace.X + mainFace.Width / 2,
             mainFace.Y + mainFace.Height / 2,
             zPosition
         );
 
-
-        //Wyœwietlenie wspó³rzêdnych w konsoli
-        Debug.Log($"Œrodek twarzy: X={facePosition.x}, Y={facePosition.y}, Z={facePosition.z}");
+        Debug.Log($"Face position: X={facePosition.x}, Y={facePosition.y}, Z={facePosition.z}");
 
         CvInvoke.Imshow("Face Detection", source);
     }

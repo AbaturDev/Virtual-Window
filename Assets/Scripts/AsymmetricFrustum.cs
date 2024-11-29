@@ -10,15 +10,15 @@ public class AsymmetricFrustum : MonoBehaviour
 {
     public GameObject virtualWindow;
 
-    public float width;
+    public float width = 60;    //in cm
 
-    public float height;
+    public float height = 34;   //in cm
 
     private float windowHeight;
     private float windowWidth;
     public float maxHeight = 2000.0f;
 
-    private bool verbose = false;
+    private bool verbose = true;
 
     public void SetAsymFrustum(Camera cam, Vector3 position, float nearestClip)
     {
